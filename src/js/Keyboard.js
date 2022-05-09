@@ -40,6 +40,8 @@ export default class Keyboard {
 
           key.addEventListener('key-down', this.handleCapsLockDown.bind(this));
           key.addEventListener('key-up', this.handleCapsLockUp.bind(this));
+
+          key.addEventListener('key-down', this.handleBackspaceDown.bind(this));
         } else if (keyParams.type === 'char') {
           key = new CharKey(keyParams);
 
@@ -89,6 +91,13 @@ export default class Keyboard {
       return;
     }
     this.shiftActive = false;
+  }
+
+  handleBackspaceDown(e) {
+    if (e.detail.code !== 'Backspace') {
+      return;
+    }
+    this.output.removeChar();
   }
 
   handleCapsLockDown(e) {

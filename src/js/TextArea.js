@@ -11,6 +11,11 @@ export default class TextArea {
     this.element.value += ch;
   }
 
+  removeChar() {
+    const oldValue = this.element.value;
+    this.element.value = oldValue.slice(0, -1);
+  }
+
   render({ element: rootElement }) {
     rootElement.append(this.element);
   }
