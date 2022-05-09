@@ -121,8 +121,33 @@ export default class Keyboard extends EventTarget {
     if (e.detail.code !== 'ShiftLeft' && e.detail.code !== 'ShiftRight') {
       return;
     }
-    this.shiftActive = false;
-    this.emitShiftDisable();
+
+    if (e.detail.code === 'ShiftLeft') {
+      this.shiftLeft = false;
+    } else {
+      this.shiftRight = false;
+    }
+
+    if (!this.shiftLeft && !this.shiftRight) {
+      this.emitShiftDisable();
+    }
+  }
+
+  handleShiftDown(e) {
+    if (e.detail.code !== 'ShiftLeft' && e.detail.code !== 'ShiftRight') {
+      return;
+    }
+    if (this.altActive) {
+      this.nextCaps();
+    }
+
+    if (e.detail.code === 'ShiftLeft') {
+      this.shiftLeft = true;
+    } else {
+      this.shiftRight = true;
+    }
+
+    this.emitShiftEnable();
   }
 
   handleBackspaceDown(e) {
@@ -150,17 +175,6 @@ export default class Keyboard extends EventTarget {
       return;
     }
     this.capsLockLocked = false;
-  }
-
-  handleShiftDown(e) {
-    if (e.detail.code !== 'ShiftLeft' && e.detail.code !== 'ShiftRight') {
-      return;
-    }
-    if (this.altActive) {
-      this.nextCaps();
-    }
-    this.shiftActive = true;
-    this.emitShiftEnable();
   }
 
   handleCharacterInput(e) {
