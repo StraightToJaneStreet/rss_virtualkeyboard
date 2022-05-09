@@ -25,9 +25,20 @@ body {
 
 .key {
   cursor: pointer;
-  transition: border-radius .5s, background-color .5s;
+
+  transition: border-radius .2s, background-color .2s;
+
+  padding: 5px;
+
+  font: {
+    weight: bold;
+  };
+
+  border: 2px solid gray;
+  border-radius: 3px;
+
   &:hover {
-    border-radius: 5px;
+    border-radius: 10px;
   }
 
   &--pressed {
