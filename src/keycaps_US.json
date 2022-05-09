@@ -47,6 +47,10 @@
     "Comma": { "char": ",", "altChar": "<" },
     "Period": { "char": ".", "altChar": ">" },
     "Slash": { "char": "/", "altChar": "?" },
-    "Space": { "char": " ", "altChar": " "}
+    "Space": { "char": " ", "altChar": " "},
+    "ArrowLeft": { "char": "\u2190", "altChar": "\u2190" },
+    "ArrowRight": { "char": "\u2192", "altChar": "\u2192" },
+    "ArrowUp": { "char": "\u2191", "altChar": "\u2191" },
+    "ArrowDown": { "char": "\u2193", "altChar": "\u2193" }
   }
 }

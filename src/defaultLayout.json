@@ -59,7 +59,7 @@
       { "type": "char", "code": "Comma", "span": 1 },
       { "type": "char", "code": "Period", "span": 1 },
       { "type": "char", "code": "Slash", "span": 1 },
-      { "type": "functional", "code": "ArrowUp", "label": "\u2191", "span": 1 },
+      { "type": "char", "code": "ArrowUp", "label": "\u2191", "span": 1 },
       { "type": "functional", "code": "ShiftRight", "label": "Shift", "span": 2 }
     ],
     [
@@ -69,9 +69,9 @@
       { "type": "char", "code": "Space", "label": " ", "span": 6 },
       { "type": "functional", "code": "AltRight", "label": "Alt", "span": 1 },
       { "type": "functional", "code": "ControlRight", "label": "Ctrl", "span": 1 },
-      { "type": "functional", "code": "ArrowLeft", "label": "\u2190", "span": 1 },
-      { "type": "functional", "code": "ArrowDown", "label": "\u2193", "span": 1 },
-      { "type": "functional", "code": "ArrowRight", "label": "\u2192", "span": 1 }
+      { "type": "char", "code": "ArrowLeft", "label": "\u2190", "span": 1 },
+      { "type": "char", "code": "ArrowDown", "label": "\u2193", "span": 1 },
+      { "type": "char", "code": "ArrowRight", "label": "\u2192", "span": 1 }
     ]
   ]
 }
