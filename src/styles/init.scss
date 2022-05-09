@@ -1,0 +1,53 @@
+body {
+  margin: 30px;
+  background-color: black;
+  user-select: none;
+}
+
+.section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: 40px;
+  resize: none;
+  background-color: white;
+}
+
+.keyboard {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: repeat(15, 1fr);
+}
+
+.key {
+  cursor: pointer;
+  transition: border-radius .5s, background-color .5s;
+  &:hover {
+    border-radius: 5px;
+  }
+
+  &--pressed {
+    border-radius: 5px;
+    background-color: red;
+  }
+
+  &--span_1 {
+    grid-column-end: span 1;
+  }
+
+  &--span_2 {
+    grid-column-end: span 2;
+  }
+
+  &--span_6 {
+    grid-column-end: span 6;
+  }
+
+  &--span_7 {
+    grid-column-end: span 7;
+  }
+}
