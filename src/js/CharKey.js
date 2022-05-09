@@ -1,73 +1,101 @@
-export default class CharKey extends EventTarget {
-  constructor(params) {
-    super();
-    const { code } = params;
+import Key from './Key';
 
-    this.code = code;
+export default class CharKey extends Key {
+  constructor(keyParams, caps, langCode) {
+    super(keyParams);
 
-    const el = document.createElement('button');
-    this.element = el;
-    el.classList.add('key');
-    if (params.span) {
-      el.classList.add('key', `key--span_${params.span}`);
-    }
+    this.char = null;
+    this.caps = caps;
+    this.currentLang = langCode;
 
-    el.addEventListener('mouseup', this.emitKeyUp.bind(this));
-    el.addEventListener('mousedown', () => {
-      this.wasMouseDown = true;
-      this.emitKeyDown();
-    });
+    this.ignoreCapsLock = !!keyParams.ignoreCapsLock;
+    this.shiftActive = false;
+    this.capsLockActive = false;
 
-    document.addEventListener('mouseup', this.globalMouseUpHandler.bind(this));
+    this.label = keyParams.label;
+
+    const { span: width } = keyParams;
+    this.createElement({ width });
+    this.attachElementListeners();
+
+    const { context } = keyParams;
+
+    context.addEventListener('keyboard-change-register', this.changeRegister.bind(this));
+    context.addEventListener('keyboard-change-layout', this.changeCaps.bind(this));
+
+    context.addEventListener('keyboard-shift-enable', this.shiftEnable.bind(this));
+    context.addEventListener('keyboard-shift-disable', this.shiftDisable.bind(this));
+
+    context.addEventListener('keyboard-caps-lock-enable', this.capsLockEnable.bind(this));
+    context.addEventListener('keyboard-caps-lock-disable', this.capsLockDisable.bind(this));
   }
 
-  globalMouseUpHandler() {
-    if (this.wasMouseDown) {
-      this.emitKeyUp();
-    }
-  }
-
-  setCap(cap) {
-    this.cap = cap;
+  shiftEnable() {
+    this.shiftActive = true;
     this.updateCap();
   }
 
-  emitKeyUp() {
-    this.wasMouseDown = false;
-    this.element.classList.remove('key--pressed');
-    const e = new CustomEvent('key-up', {
-      detail: {
-        code: this.code,
-      },
-    });
-    this.dispatchEvent(e);
+  shiftDisable() {
+    this.shiftActive = false;
+    this.updateCap();
   }
 
-  emitKeyDown() {
-    this.element.classList.add('key--pressed');
-    const e = new CustomEvent('key-down', {
-      detail: {
-        code: this.code,
-        char: this.cap.char,
-        altChar: this.cap.altChar,
-      },
-    });
-    this.dispatchEvent(e);
+  capsLockEnable() {
+    this.capsLockActive = true;
+    this.updateCap();
   }
 
-  emulateKeyUp() {
-    this.emitKeyUp();
+  capsLockDisable() {
+    this.capsLockActive = false;
+    this.updateCap();
   }
 
-  emulateKeyDown() {
-    this.emitKeyDown();
+  needAltSymbol() {
+    const { shiftActive, capsLockActive, ignoreCapsLock } = this;
+    if (ignoreCapsLock) {
+      return shiftActive;
+    }
+    return (!shiftActive && capsLockActive) || (shiftActive && !capsLockActive);
   }
 
   updateCap() {
-    this.element.innerText = this.cap.char;
+    if (this.label !== undefined) {
+      this.element.innerText = this.label;
+      return;
+    }
+    const { currentLang } = this;
+    const currentCap = this.caps[currentLang];
+    const currentChar = this.needAltSymbol() ? currentCap.altChar : currentCap.char;
+    this.element.innerText = currentChar;
   }
 
-  getElement() {
-    return this.element;
+  changeCaps(e) {
+    const { langCode } = e.detail;
+    this.currentLang = langCode;
+    this.updateCap();
+  }
+
+  emitCharacter() {
+    const { currentLang } = this;
+    const currentCap = this.caps[currentLang];
+    const content = (this.label !== undefined) ? currentCap.char : this.element.innerText;
+    const e = new CustomEvent('key-emit', {
+      detail: {
+        char: content,
+      },
+    });
+    this.dispatchEvent(e);
+  }
+
+  changeRegister() {
+    this.registerState = !this.registerState;
+  }
+
+  createElement({ width }) {
+    const el = document.createElement('button');
+
+    el.classList.add('key', (width && `key--span_${width}`));
+
+    this.element = el;
   }
 }

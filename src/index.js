@@ -11,10 +11,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const textarea = new TextArea();
   textarea.render({ element: document.body });
 
-  const keyboard = new KeyboardBuilder(defaultLayout);
-  keyboard.attachCaps('US', keyCapsUS);
-  keyboard.attachCaps('RU', keyCapsRU);
-  keyboard.loadLocalLayout();
+  const capsCollection = [
+    {
+      langCode: 'US',
+      content: keyCapsUS,
+    },
+    {
+      langCode: 'RU',
+      content: keyCapsRU,
+    },
+  ];
+
+  const keyboard = new KeyboardBuilder(defaultLayout, capsCollection);
   keyboard.attachOutput(textarea);
   keyboard.render({ element: document.body });
 });

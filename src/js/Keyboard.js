@@ -1,8 +1,10 @@
 import FunctionalKey from './FunctionalKey';
 import CharKey from './CharKey';
 
-export default class Keyboard {
-  constructor(layout) {
+export default class Keyboard extends EventTarget {
+  constructor(layout, capsCollection) {
+    super();
+
     const el = document.createElement('div');
 
     this.element = el;
@@ -16,8 +18,10 @@ export default class Keyboard {
     this.altActive = false;
     this.capsActive = false;
 
-    this.capsList = [];
+    this.capsCodes = capsCollection.map(({ langCode }) => langCode);
+    this.capsCollection = capsCollection;
     this.currentCapIndex = null;
+    this.currentLangCode = null;
 
     this.capsLockLocked = false;
 
@@ -26,11 +30,13 @@ export default class Keyboard {
     layout.lines.forEach((line) => {
       line.forEach((keyParams) => {
         let key;
+        const { code } = keyParams;
+        const combinedKeyParams = { context: this, ...keyParams };
 
         if (keyParams.type === 'functional') {
-          key = new FunctionalKey(keyParams);
-
-          this.functionalKeyCodes.push(keyParams.code);
+          const { label } = keyParams;
+          key = new FunctionalKey(combinedKeyParams, label);
+          this.functionalKeyCodes.push(code);
 
           key.addEventListener('key-down', this.handleShiftDown.bind(this));
           key.addEventListener('key-up', this.handleShiftUp.bind(this));
@@ -43,29 +49,54 @@ export default class Keyboard {
 
           key.addEventListener('key-down', this.handleBackspaceDown.bind(this));
         } else if (keyParams.type === 'char') {
-          key = new CharKey(keyParams);
+          const caps = this.constructor.extractKeyCaps(code, capsCollection);
 
+          key = new CharKey(combinedKeyParams, caps);
+          key.addEventListener('key-emit', this.handleCharacterInput.bind(this));
           this.charKeyCodes.push(keyParams.code);
-
-          this.charKeys[keyParams.code] = {
-            caps: [],
-            currentCap: null,
-            key,
-          };
-
-          key.addEventListener('key-down', this.handleCharacterInput.bind(this));
         }
 
         this.keys[keyParams.code] = key;
         this.element.append(key.getElement());
       });
     });
+
+    if (localStorage.getItem('keyboard')) {
+      this.setCaps(localStorage.getItem('keyboard'));
+    } else {
+      this.setCaps('US');
+    }
+
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
   }
 
-  isAltCharActive() {
-    return (this.capsActive && !this.shiftActive) || (!this.capsActive && this.shiftActive);
+  static extractKeyCaps(keyCode, collection) {
+    const extracted = {};
+    collection.forEach(({ langCode, content }) => {
+      extracted[langCode] = content.keycaps[keyCode];
+    });
+    return extracted;
+  }
+
+  emitCapsLockEnable() {
+    const e = new CustomEvent('keyboard-caps-lock-enable');
+    this.dispatchEvent(e);
+  }
+
+  emitCapsLockDisable() {
+    const e = new CustomEvent('keyboard-caps-lock-disable');
+    this.dispatchEvent(e);
+  }
+
+  emitShiftEnable() {
+    const e = new CustomEvent('keyboard-shift-enable');
+    this.dispatchEvent(e);
+  }
+
+  emitShiftDisable() {
+    const e = new CustomEvent('keyboard-shift-disable');
+    this.dispatchEvent(e);
   }
 
   handleKeyDown(e) {
@@ -91,6 +122,7 @@ export default class Keyboard {
       return;
     }
     this.shiftActive = false;
+    this.emitShiftDisable();
   }
 
   handleBackspaceDown(e) {
@@ -105,6 +137,11 @@ export default class Keyboard {
       return;
     }
     this.capsLockLocked = true;
+    if (this.capsActive) {
+      this.emitCapsLockDisable();
+    } else {
+      this.emitCapsLockEnable();
+    }
     this.capsActive = !this.capsActive;
   }
 
@@ -120,18 +157,14 @@ export default class Keyboard {
       return;
     }
     if (this.altActive) {
-      this.changeCaps();
+      this.nextCaps();
     }
     this.shiftActive = true;
+    this.emitShiftEnable();
   }
 
   handleCharacterInput(e) {
-    const alt = this.isAltCharActive();
-    if (alt) {
-      this.output.writeChar(e.detail.altChar);
-    } else {
-      this.output.writeChar(e.detail.char);
-    }
+    this.output.writeChar(e.detail.char);
   }
 
   handleAltUp(e) {
@@ -148,39 +181,27 @@ export default class Keyboard {
     this.altActive = true;
   }
 
-  changeCaps() {
-    if (this.currentCapIndex === this.capsList.length - 1) {
-      this.currentCapIndex = 0;
-    } else {
-      this.currentCapIndex += 1;
-    }
-    this.updateCaps();
+  nextCaps() {
+    const langsCount = this.capsCodes.length;
+    const nextCapsIndex = this.currentCapIndex === langsCount - 1 ? 0 : this.currentCapIndex + 1;
+    const newLangCode = this.capsCodes[nextCapsIndex];
+    this.setCaps(newLangCode);
   }
 
   setCaps(langCode) {
-    const langIndex = this.capsList.findIndex((el) => el === langCode);
-    if (langIndex === -1) {
-      return;
-    }
-    this.currentCapIndex = langIndex;
-    this.updateCaps();
+    this.currentCapIndex = this.capsCodes.findIndex((code) => code === langCode);
+    this.currentLangCode = langCode;
+    localStorage.setItem('keyboard', this.currentLangCode);
+    this.emitChangeLayout();
   }
 
-  updateCaps() {
-    localStorage.setItem('virtual-keyboard-layout', this.capsList[this.currentCapIndex]);
-    Object.keys(this.charKeys).forEach((keyCode) => {
-      this.charKeys[keyCode].currentCap = this.capsList[this.currentCapIndex];
-      this.charKeys[keyCode].key.setCap(this.charKeys[keyCode].caps[this.currentCapIndex]);
+  emitChangeLayout() {
+    const e = new CustomEvent('keyboard-change-layout', {
+      detail: {
+        langCode: this.currentLangCode,
+      },
     });
-  }
-
-  loadLocalLayout() {
-    if (localStorage.getItem('virtual-keyboard-layout')) {
-      const code = localStorage.getItem('virtual-keyboard-layout');
-      this.setCaps(code);
-    } else {
-      this.setCaps('US');
-    }
+    this.dispatchEvent(e);
   }
 
   attachCaps(langCode, layout) {
