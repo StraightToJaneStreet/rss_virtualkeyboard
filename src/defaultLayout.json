@@ -66,7 +66,7 @@
       { "type": "functional", "code": "ControlLeft", "label": "Ctrl", "span": 1 },
       { "type": "functional", "code": "MetaLeft", "label": "Cmd", "span": 1 },
       { "type": "functional", "code": "AltLeft", "label":"Alt", "span": 1 },
-      { "type": "char", "code": "Space", "label": "", "span": 6 },
+      { "type": "char", "code": "Space", "label": " ", "span": 6 },
       { "type": "functional", "code": "AltRight", "label": "Alt", "span": 1 },
       { "type": "functional", "code": "ControlRight", "label": "Ctrl", "span": 1 },
       { "type": "functional", "code": "ArrowLeft", "label": "\u2190", "span": 1 },
