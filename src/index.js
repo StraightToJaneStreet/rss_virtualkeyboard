@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const keyboard = new KeyboardBuilder(defaultLayout);
   keyboard.attachCaps('US', keyCapsUS);
   keyboard.attachCaps('RU', keyCapsRU);
+  keyboard.loadLocalLayout();
   keyboard.attachOutput(textarea);
   keyboard.render({ element: document.body });
 });

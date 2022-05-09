@@ -145,26 +145,40 @@ export default class Keyboard {
     } else {
       this.currentCapIndex += 1;
     }
+    this.updateCaps();
+  }
 
+  setCaps(langCode) {
+    const langIndex = this.capsList.findIndex((el) => el === langCode);
+    if (langIndex === -1) {
+      return;
+    }
+    this.currentCapIndex = langIndex;
+    this.updateCaps();
+  }
+
+  updateCaps() {
+    localStorage.setItem('virtual-keyboard-layout', this.capsList[this.currentCapIndex]);
     Object.keys(this.charKeys).forEach((keyCode) => {
       this.charKeys[keyCode].currentCap = this.capsList[this.currentCapIndex];
       this.charKeys[keyCode].key.setCap(this.charKeys[keyCode].caps[this.currentCapIndex]);
     });
   }
 
+  loadLocalLayout() {
+    if (localStorage.getItem('virtual-keyboard-layout')) {
+      const code = localStorage.getItem('virtual-keyboard-layout');
+      this.setCaps(code);
+    } else {
+      this.setCaps('US');
+    }
+  }
+
   attachCaps(langCode, layout) {
     this.capsList.push(langCode);
 
-    if (this.currentCapIndex === null) {
-      this.currentCapIndex = 0;
-    }
-
     Object.entries(layout.keycaps).forEach(([keyCode, cap]) => {
       this.charKeys[keyCode].caps.push(cap);
-      if (this.charKeys[keyCode].currentCap === null) {
-        this.charKeys[keyCode].currentCap = langCode;
-        this.charKeys[keyCode].key.setCap(cap);
-      }
     });
   }
 
