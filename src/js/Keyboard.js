@@ -67,12 +67,18 @@ export default class Keyboard {
   }
 
   handleKeyDown(e) {
+    if (!Object.keys(this.keys).includes(e.code)) {
+      return;
+    }
     const { code } = e;
     e.preventDefault();
     this.keys[code].emulateKeyDown();
   }
 
   handleKeyUp(e) {
+    if (!Object.keys(this.keys).includes(e.code)) {
+      return;
+    }
     const { code } = e;
     e.preventDefault();
     this.keys[code].emulateKeyUp();
