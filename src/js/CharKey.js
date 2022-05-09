@@ -1,12 +1,16 @@
 export default class CharKey extends EventTarget {
-  constructor({ code }) {
+  constructor(params) {
     super();
+    const { code } = params;
 
     this.code = code;
 
     const el = document.createElement('button');
     this.element = el;
     el.classList.add('key');
+    if (params.span) {
+      el.classList.add('key', `key--span_${params.span}`);
+    }
 
     el.addEventListener('mouseup', this.emitKeyUp.bind(this));
     el.addEventListener('mousedown', () => {
