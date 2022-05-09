@@ -1,0 +1,7 @@
+{
+  "extends": "airbnb-base",
+  "globals": {
+    "document": "readonly",
+    "CustomEvent": "readonly"
+  }
+}
