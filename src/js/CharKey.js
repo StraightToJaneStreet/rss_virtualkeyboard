@@ -51,7 +51,8 @@ export default class CharKey extends Key {
   }
 
   needAltSymbol() {
-    const { shiftActive, capsLockActive, ignoreCapsLock } = this;
+    const { shiftActive, capsLockActive, currentLang } = this;
+    const ignoreCapsLock = !!this.caps[currentLang].ignoreCapsLock;
     if (ignoreCapsLock) {
       return shiftActive;
     }
