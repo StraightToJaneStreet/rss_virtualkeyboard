@@ -24,6 +24,18 @@ body {
   grid-template-columns: repeat(15, 1fr);
 }
 
+.notice {
+  color: white;
+  padding-top: 20px;
+
+  kbd {
+    border: 1px solid gray;
+    border-radius: 1px;
+    padding: 2px;
+  }
+}
+
+
 .key {
   cursor: pointer;
 

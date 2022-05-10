@@ -25,4 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const keyboard = new KeyboardBuilder(defaultLayout, capsCollection);
   keyboard.attachOutput(textarea);
   keyboard.render({ element: document.body });
+
+  const langNotice = document.createElement('p');
+  langNotice.classList.add('notice', 'section');
+  langNotice.innerHTML = 'Layout Change: Hold <kbd>Alt</kbd> + Tap <kbd>Shift</kbd>';
+
+  document.body.append(langNotice);
+
+  const osNotice = document.createElement('p');
+  osNotice.classList.add('notice', 'section');
+  osNotice.innerHTML = 'OS: Manjaro Linux';
+
+  document.body.append(osNotice);
 });
